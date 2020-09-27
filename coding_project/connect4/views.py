@@ -8,9 +8,6 @@ from . import game_activity
 
 GameBoard_obj = GameBoard()
 
-@api_view(['GET'])
-def demo(request):
-    return Response("Hey")
 
 @api_view(['GET'])
 def start(request):

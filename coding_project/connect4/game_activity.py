@@ -18,22 +18,22 @@ class Move:
 
 
 def set_moves(move,data):
-    dc = [
-            data.move_num,
-             {
-                 "user": move.user,
-                 "Column": move.column
-            }
-        ]
-    fetch_moves = json.loads(data.all_moves or "[]")
-    fetch_moves.extend(dc)
-    data.all_moves = fetch_moves
-    data.save()
+    dc = {
+        'Move Data': {
+                'user': move.user,
+                'Column': move.column
+                }
+        }
+
+    all_move_string = data.all_moves
+    all_move_dict = json.loads(all_move_string)
+    all_move_dict[str('Move '+str(data.move_num+1))] = dc
+    data.all_moves = json.dumps(all_move_dict)
     return True
 
 
 def get_moves(data):
-    return data.all_moves
+    return json.loads(data.all_moves)
 
 
 def valid_token(move, db_obj):
@@ -47,44 +47,12 @@ def valid_token(move, db_obj):
         data = GameBoard.objects.get(token=move.token)
         if (time.time() - data.datetime.timestamp())//60 > 30:
             result = [False, 'INVALID, Session expired']
+            data.delete()
         else:
             result = [True, data]
     else:
         result = [False, 'INVALID, Invalid Token']
     return result
-
-def valid_move(move,data):
-    if (data.move_num%2 == 0 and move.user != 'Y')  or (data.move_num%2 != 0 and move.user != 'R'):
-        print(data.move_num%2,move.user)
-        return 'INVALID'
-    
-    rows = [
-            data.row1,
-            data.row2,
-            data.row3,
-            data.row4,
-            data.row5,
-            data.row6,
-            ]
-    
-    matrix = [list(str(r)) for i in rows]
-
-    for i in range(6):
-        if matrix[i][move.column] !=0:
-            if i-1<0:
-                return 'INVALID'
-            else:
-                if move.user=='Y':
-                    matrix[i-1][move.column] = 1
-                else:
-                    matrix[i-1][move.column] = 2
-    else:
-        return 'INVALID'
-
-    set_moves(move, data)
-    return 'VALID'
-
-    
 
 
 def make_move(move, db_obj):
@@ -102,4 +70,88 @@ def make_move(move, db_obj):
         return valid_move(move, data)
     else:
         return response
+
+
+def valid_move(move,data):
+    if (data.move_num%2 == 0 and move.user != 'Y')  or (data.move_num%2 != 0 and move.user != 'R'):
+        return 'INVALID'
     
+    rows = [
+            data.row1,
+            data.row2,
+            data.row3,
+            data.row4,
+            data.row5,
+            data.row6,
+            ]
+    
+    matrix = [list(str(r)) for r in rows]
+    result = ''
+    empty = True
+    target = 0
+    c = int(move.column)
+    if move.user=='Y':
+        target = '1'
+    elif move.user=='R':
+        target = '2'
+    else:
+        return 'INVALID'
+        
+    for i in range(6):
+        if matrix[i][c-1] !='9':
+            empty = False
+            if i-1<0:
+                return 'INVALID'
+            matrix[i-1][c-1] = target
+            print(f"Row {i-1} Col {c-1} ",matrix[i-1][c-1])
+            number = int(''.join(matrix[i-1]))
+            exec(f"data.row{i} = number")
+            if down(i-1,c-1,target,matrix) or row(i,target,matrix):
+                if target=='2':
+                    result = 'RED WINS'
+                else:
+                    result = 'YELLOW WINS'
+            else:
+                result = "VALID"
+
+    if empty:
+        matrix[-1][c-1] = target
+        data.row6 = int(''.join(matrix[-1]))
+        if row(i,target,matrix):
+            if target=='2':
+                result = 'RED WINS'
+            else:
+                result = 'YELLOW WINS'
+        else:
+            result = 'VALID'
+
+    if result:
+        print("RESULt ",result)
+        set_moves(move, data)
+        data.move_num += 1
+        data.save()
+    return result
+
+
+def down(row,col,target,matrix):
+    count = 0
+    for i in range(row,6):
+        
+        if matrix[i][col] == target:
+            count+=1
+        else:
+            count=0
+        if count==4:
+            return True
+    return count==4
+
+def row(r,target,matrix):
+    count = 0
+    for i in matrix[r] :           
+        if i==target:
+            count+=1
+        else:
+            count = 0
+        if count == 4:
+            return True
+    return count==4
