@@ -75,6 +75,8 @@ def make_move(move, db_obj):
 def valid_move(move,data):
     if (data.move_num%2 == 0 and move.user != 'Y')  or (data.move_num%2 != 0 and move.user != 'R'):
         return 'INVALID'
+    if move.column<'0' or move.column>'7':
+        return 'INVALID'
     
     rows = [
             data.row1,

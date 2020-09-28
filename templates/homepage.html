@@ -1,0 +1,49 @@
+<html>
+    <head>
+        <title>Connect4 - Akash Tyagi</title>
+    </head>
+    
+    <body>
+        <center>
+        <h1>Connect4</h1>
+
+        <h2>An API based Game, First to connet 4 dots win.</h2>
+        
+        <p>
+            Board size = 6*7
+            </center>
+            <h3><b>Backend Features:</b></h3>
+            <ol>
+                <li>Validate each request for a Valid Token.</li>
+                <li>Each game session expires after 30min.</li>
+                <li>When request recieves with expired session, deletes game data from DB and returns "INVALID" .</li>
+                <li>Validate each request for correct user order, maintains alternate user game play.</li>
+            </ol>   
+        </p>
+
+        <p>
+            <h2>API calls Supported:</h2>
+            <ol>
+                <li> Start a new instance (returns token)<br>
+                    <a href=https://connect4-akashtyagi.herokuapp.com/START>https://connect4-akashtyagi.herokuapp.com/START</a>
+                </li>
+
+                <li>Play move, validate token, 30min session<br>
+                    <a href=https://connect4-akashtyagi.herokuapp.com/MOVE?u="Y/R"&c="1....7"&t=token_recieved_form_start_api>https://connect4-akashtyagi.herokuapp.com/MOVE?u="Y/R"&c="1....7"&t=token_recieved_form_start_api</a><br>
+                    u = This parameter defines which user makes move. Possible options are [Y,R].<br>
+                    c = This parameter defines which in column coin is dropped. Possible options are [1,2,3,4,5,6,7]<br>
+                    t = This parameter defines which token/session are you in. Possible option is "token" you recieved when used 'START/' api.
+
+                </li>
+
+                <li>Returns all moves so far<br>
+                    <a href=https://connect4-akashtyagi.herokuapp.com/ALL_MOVES?t=token_value>https://connect4-akashtyagi.herokuapp.com/ALL_MOVES?t=token_value</a>
+                </li>
+            </ol>
+        </p>
+    </body>
+
+
+
+
+</html>

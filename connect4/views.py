@@ -8,6 +8,8 @@ from . import game_activity
 
 GameBoard_obj = GameBoard()
 
+def homepage(request):
+    return render(request,template_name='homepage.html')
 
 @api_view(['GET'])
 def start(request):
